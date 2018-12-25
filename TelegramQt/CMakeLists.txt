@@ -22,6 +22,7 @@ set(telegram_qt_SOURCES
     DataStorage.cpp
     DialogList.cpp
     IgnoredMessageNotification.cpp
+    FilesApi.cpp
     LegacySecretReader.cpp
     MessagingApi.cpp
     RpcError.cpp
@@ -72,6 +73,8 @@ set(telegram_qt_META_HEADERS
     DataStorage_p.hpp
     DialogList.hpp
     DhLayer.hpp
+    FilesApi.hpp
+    FilesApi_p.hpp
     LegacySecretReader.hpp
     MessagingApi.hpp
     MessagingApi_p.hpp
@@ -146,6 +149,7 @@ set(telegram_qt_public_HEADERS
     DcConfiguration.hpp
     Debug.hpp
     DialogList.hpp
+    FilesApi.hpp
     MessagingApi.hpp
     PendingOperation.hpp
     ReadyObject.hpp
