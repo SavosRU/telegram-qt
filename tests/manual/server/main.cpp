@@ -21,6 +21,7 @@
 #include "DefaultAuthorizationProvider.hpp"
 #include "LocalCluster.hpp"
 #include "Session.hpp"
+#include "Storage.hpp"
 
 // Test keys
 #include "keys_data.hpp"
@@ -107,6 +108,22 @@ int main(int argc, char *argv[])
     qInfo() << "    Public PKCS8:" << TestKeyData::publicKeyPkcs8FileName();
     if (!cluster.start()) {
         return -2;
+    }
+
+    LocalUser *u1 = cluster.addUser(QStringLiteral("123456789"), /* dc */ 1);
+    u1->setFirstName(QStringLiteral("Dc1User1"));
+    u1->setLastName(QStringLiteral("Dc1"));
+
+    ServerApi *api = cluster.getServerApiInstance(1);
+
+    for (int i = 0; i < 60; ++i) {
+        QString nId = QString::number(i + 1);
+        LocalUser *dialogN = cluster.addUser(QStringLiteral("123456") + nId, /* dc */ 1);
+        dialogN->setFirstName(QStringLiteral("First") + nId);
+        dialogN->setLastName(QStringLiteral("Last") + nId);
+        MessageData *data = api->storage()->addMessage(dialogN->userId(), u1->toPeer(), QStringLiteral("Message ") + nId);
+        data->setDate32(data->date() - 60 + i);
+        api->processMessage(data);
     }
 
     int retCode = a.exec();
