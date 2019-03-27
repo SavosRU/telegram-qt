@@ -23,6 +23,24 @@
 
 namespace Telegram {
 
+struct NotificationSettings
+{
+    enum Flags {
+        ShowPreviews = 1 << 0,
+        Silent = 1 << 1,
+    };
+    bool showPreviews() const { return flags & ShowPreviews; }
+    bool silent() const { return flags & Silent; }
+
+    static constexpr quint32 c_muteForever = ~quint32(0) >> 1; // 2147483647
+
+    quint32 flags = 0;
+    quint32 muteUntil = 0;
+    QString sound;
+
+    static const NotificationSettings *getDefaultSettings();
+};
+
 struct UserDialog
 {
     Telegram::Peer peer;

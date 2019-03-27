@@ -108,6 +108,8 @@ public:
     const QHash<quint32, TLChat *> &chats() const { return m_chats; }
     const TLVector<UserDialog *> &dialogs() const { return m_dialogs; }
     UserDialog *ensureDialog(const Peer &peer);
+    const NotificationSettings *getNotificationSettings(const Peer &peer);
+    void setNotificationSettings(const Peer &peer, const NotificationSettings &settings);
 
     const QHash<Peer, DialogState> *dialogStates() const { return &m_dialogStates; }
     QHash<Peer, DialogState> *dialogStates() { return &m_dialogStates; }
@@ -125,6 +127,7 @@ protected:
     QHash<quint32, TLChat *> m_chats;
     QHash<quint32, TLMessage *> m_clientMessages;
     QHash<quint64, TLMessage *> m_channelMessages;
+    QHash<Peer, NotificationSettings *> m_notificationSettings;
     TLVector<TLDialog> m_tlDialogs;
     TLVector<UserDialog *> m_dialogs;
     TLVector<TLContact> m_contactList;

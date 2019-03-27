@@ -375,6 +375,12 @@ void DataInternalApi::processData(const TLMessagesDialogs &dialogs)
         dialog->pts = tlDialog.pts;
         dialog->draftText = tlDialog.draft.message;
 
+        NotificationSettings settings;
+        settings.flags = tlDialog.notifySettings.flags;
+        settings.muteUntil = tlDialog.notifySettings.muteUntil;
+        settings.sound = tlDialog.notifySettings.sound;
+        setNotificationSettings(peer, settings);
+
         const TLMessage *message = getMessage(peer, tlDialog.topMessage);
         if (message) {
             dialog->topMessage = message->id;
@@ -555,6 +561,24 @@ UserDialog *DataInternalApi::ensureDialog(const Peer &peer)
         m_dialogs.append(dialog);
     }
     return dialog;
+}
+
+const NotificationSettings *DataInternalApi::getNotificationSettings(const Peer &peer)
+{
+    const NotificationSettings *result = m_notificationSettings.value(peer);
+    if (!result) {
+        return NotificationSettings::getDefaultSettings();
+    }
+    return result;
+}
+
+void DataInternalApi::setNotificationSettings(const Peer &peer, const NotificationSettings &settings)
+{
+    if (!m_notificationSettings.contains(peer)) {
+        m_notificationSettings.insert(peer, new NotificationSettings(settings));
+    } else {
+        *m_notificationSettings[peer] = settings;
+    }
 }
 
 DialogState *DataInternalApi::ensureDialogState(const Peer peer)
