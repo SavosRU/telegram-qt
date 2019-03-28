@@ -504,18 +504,22 @@ void MessagesModel::onPeerChanged()
     beginResetModel();
     qDeleteAll(m_events);
     m_events.clear();
+    m_oldestMessageId = 0;
     endResetModel();
 
-    m_oldestMessageId = 0;
+    qWarning() << Q_FUNC_INFO << m_oldestMessageId << "(1)";
 
     if (!m_peer.isValid()) {
         return;
     }
 
     DialogInfo info;
-    dataStorage()->getDialogInfo(&info, m_peer);
+    if (!dataStorage()->getDialogInfo(&info, m_peer)) {
+        qWarning() << Q_FUNC_INFO << "No dialog!";
+    }
 
     m_oldestMessageId = info.lastMessageId();
+    qWarning() << Q_FUNC_INFO << m_oldestMessageId << "(2)";
 
     insertMessages({m_oldestMessageId});
 
@@ -595,6 +599,7 @@ void MessagesModel::processHistoryMessages(const QVector<quint32> &messageIds)
         return;
     }
     m_oldestMessageId = messageIds.last();
+    qWarning() << Q_FUNC_INFO << m_oldestMessageId << "(3)";
     QVector<Event*> newEvents;
     // messageIds sorted from new to old
     for (int i = messageIds.count() - 1; i >= 0; --i) {

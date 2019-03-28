@@ -97,6 +97,7 @@ public:
 
     quint32 selfUserId() const { return m_selfUserId; }
 
+    TLInputPeer toInputPeer(const TLPeer &peer) const;
     TLInputPeer toInputPeer(const Telegram::Peer &peer) const;
     TLInputUser toInputUser(quint32 userId) const;
     TLInputChannel toInputChannel(quint32 channelId) const;
@@ -107,6 +108,7 @@ public:
     const QHash<quint32, TLUser *> &users() const { return m_users; }
     const QHash<quint32, TLChat *> &chats() const { return m_chats; }
     const TLVector<UserDialog *> &dialogs() const { return m_dialogs; }
+    UserDialog *getDialog(const Peer &peer) const;
     UserDialog *ensureDialog(const Peer &peer);
     const NotificationSettings *getNotificationSettings(const Peer &peer);
     void setNotificationSettings(const Peer &peer, const NotificationSettings &settings);
@@ -128,7 +130,6 @@ protected:
     QHash<quint32, TLMessage *> m_clientMessages;
     QHash<quint64, TLMessage *> m_channelMessages;
     QHash<Peer, NotificationSettings *> m_notificationSettings;
-    TLVector<TLDialog> m_tlDialogs;
     TLVector<UserDialog *> m_dialogs;
     TLVector<TLContact> m_contactList;
     QQueue<SentMessage> m_queuedMessages;

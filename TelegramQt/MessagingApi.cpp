@@ -12,6 +12,8 @@
 #include "Operations/PendingMessages.hpp"
 #include "Operations/PendingMessages_p.hpp"
 
+#include "TLTypesDebug.hpp"
+
 #include <QLoggingCategory>
 
 namespace Telegram {
@@ -393,6 +395,24 @@ void MessagingApiPrivate::onGetDialogsFinished(PendingOperation *operation, Mess
     TLMessagesDialogs dialogs;
     rpcOperation->getResult(&dialogs);
     dataInternalApi()->processData(dialogs);
+    qDebug() << Q_FUNC_INFO << dialogs.dialogs;
+    if (dataInternalApi()->dialogs().count() < dialogs.count) {
+        rpcOperation->deleteLater();
+        const TLDialog &lastTlDialog = dialogs.dialogs.last();
+        const TLInputPeer inputPeer = dataInternalApi()->toInputPeer(lastTlDialog.peer);
+        quint32 date = 0;
+        for (const TLMessage &message : dialogs.messages) {
+            if ((message.id == lastTlDialog.topMessage) && (message.toId == lastTlDialog.peer)) {
+                date = message.date;
+                break;
+            }
+        }
+
+        quint32 excludePinned = 1;
+        rpcOperation = messagesLayer()->getDialogs(excludePinned, date, lastTlDialog.topMessage, inputPeer, 20);
+        rpcOperation->connectToFinished(this, &MessagingApiPrivate::onGetDialogsFinished, operation, rpcOperation);
+        return;
+    }
     operation->setFinished();
 }
 
