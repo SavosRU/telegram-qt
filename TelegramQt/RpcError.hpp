@@ -39,7 +39,7 @@ public:
         NotFound = 404,
         Flood = 420,
         Internal = 500,
-    };
+    }; // INPUT_FETCH_ERROR
 
     enum Reason {
         UnknownReason,

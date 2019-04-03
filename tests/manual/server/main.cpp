@@ -31,6 +31,7 @@
 #include <QDebug>
 #include <QStandardPaths>
 #include <QCommandLineParser>
+#include <QTimer>
 
 using namespace Telegram::Server;
 
@@ -110,23 +111,27 @@ int main(int argc, char *argv[])
         return -2;
     }
 
-    LocalUser *u1 = cluster.addUser(QStringLiteral("123456789"), /* dc */ 1);
-    u1->setFirstName(QStringLiteral("Dc1User1"));
-    u1->setLastName(QStringLiteral("Dc1"));
+//    LocalUser *u1 = cluster.addUser(QStringLiteral("123456789"), /* dc */ 1);
+//    u1->setFirstName(QStringLiteral("Dc1User1"));
+//    u1->setLastName(QStringLiteral("Dc1"));
 
-    ServerApi *api = cluster.getServerApiInstance(1);
+//    ServerApi *api = cluster.getServerApiInstance(1);
 
-    for (int i = 0; i < 60; ++i) {
-        QString nId = QString::number(i + 1);
-        LocalUser *dialogN = cluster.addUser(QStringLiteral("123456") + nId, /* dc */ 1);
-        dialogN->setFirstName(QStringLiteral("First") + nId);
-        dialogN->setLastName(QStringLiteral("Last") + nId);
-        MessageData *data = api->storage()->addMessage(dialogN->userId(), u1->toPeer(), QStringLiteral("Message ") + nId);
-        data->setDate32(data->date() - 60 + i);
-        api->processMessage(data);
-    }
+//    for (int i = 0; i < 60; ++i) {
+//        QString nId = QString::number(i + 1);
+//        LocalUser *dialogN = cluster.addUser(QStringLiteral("123456") + nId, /* dc */ 1);
+//        dialogN->setFirstName(QStringLiteral("First") + nId);
+//        dialogN->setLastName(QStringLiteral("Last") + nId);
+//        MessageData *data = api->storage()->addMessage(dialogN->userId(), u1->toPeer(), QStringLiteral("Message ") + nId);
+//        data->setDate32(data->date() - 60 + i);
+//        api->processMessage(data);
+//    }
+
+    QTimer::singleShot(20000, &a, &QCoreApplication::quit);
 
     int retCode = a.exec();
+    cluster.stop();
+
     TestKeyData::cleanupKeyFiles();
     return retCode;
 }

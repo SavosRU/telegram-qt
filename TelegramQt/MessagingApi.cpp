@@ -75,6 +75,18 @@ void MessagingApiPrivate::setMessageRead(const Peer peer, quint32 messageId)
     }
 }
 
+void MessagingApiPrivate::setMessageAction(const Peer peer, TelegramNamespace::MessageAction action)
+{
+    if (!peer.isValid()) {
+        return;
+    }
+    TLInputPeer inputPeer = dataInternalApi()->toInputPeer(peer);
+    TLSendMessageAction act;
+    act.tlType = Telegram::Utils::toTLValue(action);
+
+    messagesLayer()->setTyping(inputPeer, act);
+}
+
 void MessagingApiPrivate::onMessageSendResult(quint64 randomMessageId, MessagesRpcLayer::PendingUpdates *rpcOperation)
 {
     TLUpdates result;
@@ -164,7 +176,7 @@ void MessagingApiPrivate::onMessageOutboxRead(const Telegram::Peer peer, quint32
 PendingOperation *MessagingApiPrivate::getDialogs()
 {
     PendingOperation *operation = new PendingOperation("MessagingApi::getDialogs", this);
-    MessagesRpcLayer::PendingMessagesDialogs *rpcOperation = messagesLayer()->getDialogs(0, 0, 0, TLInputPeer(), 20);
+    MessagesRpcLayer::PendingMessagesDialogs *rpcOperation = messagesLayer()->getDialogs(0, 0, 0, TLInputPeer(), 10);
     rpcOperation->connectToFinished(this, &MessagingApiPrivate::onGetDialogsFinished, operation, rpcOperation);
     return operation;
 }
@@ -361,7 +373,8 @@ quint64 MessagingApi::forwardMessage(const Peer peer, const Peer fromPeer, quint
 
 void MessagingApi::setMessageAction(const Peer peer, TelegramNamespace::MessageAction action)
 {
-
+    Q_D(MessagingApi);
+    return d->setMessageAction(peer, action);
 }
 
 void MessagingApi::readHistory(const Peer peer, quint32 messageId)
@@ -396,8 +409,8 @@ void MessagingApiPrivate::onGetDialogsFinished(PendingOperation *operation, Mess
     rpcOperation->getResult(&dialogs);
     dataInternalApi()->processData(dialogs);
     qDebug() << Q_FUNC_INFO << dialogs.dialogs;
-    if (dataInternalApi()->dialogs().count() < dialogs.count) {
-        rpcOperation->deleteLater();
+    rpcOperation->deleteLater();
+    if (false) {//dataInternalApi()->dialogs().count() < dialogs.count) {
         const TLDialog &lastTlDialog = dialogs.dialogs.last();
         const TLInputPeer inputPeer = dataInternalApi()->toInputPeer(lastTlDialog.peer);
         quint32 date = 0;

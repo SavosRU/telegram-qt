@@ -26,6 +26,24 @@
 #include <QImage>
 #include <QLoggingCategory>
 
+#include <QJsonDocument>
+#include <QJsonObject>
+
+#include "TelegramJson_p.hpp"
+
+QJsonValue toJsonValue(const Telegram::Server::MessageData &messageData)
+{
+    QJsonObject messageObject;
+    messageObject[QLatin1String("id")] = toJsonValue(messageData.globalId());
+    messageObject[QLatin1String("date64")] = toJsonValue(messageData.date64());
+    messageObject[QLatin1String("toPeer")] = toJsonValue(messageData.toPeer());
+    messageObject[QLatin1String("fromId")] = toJsonValue(messageData.fromId());
+    if (!messageData.text().isEmpty()) {
+        messageObject[QLatin1String("text")] = toJsonValue(messageData.text());
+    }
+    return messageObject;
+}
+
 static const QString c_storageFileDir = QLatin1String("storage/volume%1");
 
 namespace Telegram {
@@ -41,6 +59,25 @@ const QVector<int> ImageSizeDescriptor::Sizes = {
 
 Storage::Storage(QObject *parent) :
     QObject(parent)
+{
+}
+
+void Storage::saveData()
+{
+    QJsonObject root;
+    root[QLatin1String("version")] = 1;
+    QJsonArray messagesArray;
+    for (const MessageData &messageData : m_messages) {
+        messagesArray.append(toJsonValue(messageData));
+    }
+    root[QLatin1String("messages")] = messagesArray;
+
+    QFile data(QStringLiteral("messages.json"));
+    data.open(QIODevice::WriteOnly);
+    data.write(QJsonDocument(root).toJson());
+}
+
+void Storage::loadData()
 {
 }
 
